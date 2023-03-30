@@ -1,0 +1,12 @@
+{
+  "name": "spotify-playlist-sorter",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "run": "node main.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "spotify-web-api-node": "^5.0.2"
+  }
+}
