@@ -7,8 +7,6 @@ const express = require("express"),
     cookieParser = require("cookie-parser"),
     crypto = require("crypto");
 
-console.log(process.argv);
-
 const clientId = process.env.clientId,
     clientSecret = process.env.clientSecret,
     redirectUri = "http://localhost:8888/callback",
@@ -23,7 +21,7 @@ app.get("/login", function (req, res) {
     res.cookie(stateKey, state);
 
     let scope =
-        "user-read-private playlist-modify-private playlist-modify-public playlist-read-private user-library-modify";
+        "playlist-modify-private playlist-modify-public playlist-read-private user-library-read user-library-modify";
     res.redirect(
         "https://accounts.spotify.com/authorize?" +
             querystring.stringify({

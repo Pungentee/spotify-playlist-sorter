@@ -1,27 +1,13 @@
 require("dotenv").config();
 
-const clientId = process.env.clientId,
-    clientSecret = process.env.clientSecret,
-    redirectUri = "http://localhost:8888/callback",
-    accessToken = process.env.accessToken;
-
 const SpotifyWebApi = require("spotify-web-api-node");
 const spotifyApi = new SpotifyWebApi({
-    clientId: clientId,
-    clientSecret: clientSecret,
-    redirectUri: redirectUri,
+    clientId: process.env.clientId,
+    clientSecret: process.env.clientSecret,
+    redirectUri: "http://localhost:8888/callback",
 });
 
-spotifyApi.setAccessToken(accessToken);
-
-function compareSongsNames(a, b) {
-    if (a.track.artists[0].name[0] < b.track.artists[0].name[0]) {
-        return -1;
-    } else if (a.track.artists[0].name[0] < b.track.artists[0].name[0]) {
-        return 1;
-    }
-    return 0;
-}
+spotifyApi.setAccessToken(process.env.accessToken);
 
 function compareTracksByAlbumYear(a, b) {
     let aAlbumYear, bAlbumYear;
@@ -52,7 +38,7 @@ function sortSongsByArtist(songsList) {
     let copySongsList = [...songsList],
         sortedList = [];
 
-    copySongsList.sort(compareSongsNames);
+    copySongsList.sort((a, b) => a.track.artists[0].name.localeCompare(b.track.artists[0].name));
 
     for (let song in copySongsList) {
         if (song == 0) {
@@ -137,25 +123,46 @@ function createListOfSongsID(songsList) {
 }
 
 spotifyApi.getPlaylist(process.env.playlistID).then(
-    (data) => {
-        let originalSongsList = data.body.tracks.items;
-        let sortedSongsList = sortSongsByArtist(originalSongsList);
+    async (data) => {
+        console.log("Wait...");
+        let currentSongsList = data.body.tracks.items;
+        let sortedSongsList = sortSongsByArtist(currentSongsList);
         sortedSongsList = sortSongsByAlbumYear(sortedSongsList);
         sortedSongsList = sortSongsByPositionInAlbum(sortedSongsList);
         sortedSongsList = convertArtistsAndAlbumsListToSongsList(sortedSongsList);
-        listOfSongsID = createListOfSongsID(sortedSongsList);
 
-        spotifyApi.createPlaylist(data.body.name + " Sorted").then(
-            (data) => {
-                spotifyApi.addTracksToPlaylist(data.body.id, listOfSongsID).then(
-                    (data) => {},
-                    (err) => console.log("Something went wrong!", err)
-                );
-            },
-            (err) => console.log("Something went wrong!", err)
-        );
-
+        if (process.env.mode == "modifyExisted") {
+            for (let i in sortedSongsList) {
+                for (let j in currentSongsList) {
+                    if (sortedSongsList[i].track.id == currentSongsList[j].track.id) {
+                        await spotifyApi
+                            .reorderTracksInPlaylist(process.env.playlistID, parseInt(j), parseInt(i) + 1)
+                            .then(
+                                await spotifyApi.getPlaylist(process.env.playlistID).then(
+                                    (data) => (currentSongsList = data.body.tracks.items),
+                                    (err) => console.log(err)
+                                ),
+                                (err) => console.log(err)
+                            );
+                        break;
+                    }
+                }
+            }
+        } else if (process.env.mode == "createNew") {
+            listOfSongsID = createListOfSongsID(sortedSongsList);
+            spotifyApi.createPlaylist(data.body.name + " Sorted").then(
+                (data) => {
+                    spotifyApi.addTracksToPlaylist(data.body.id, listOfSongsID).then(
+                        (data) => {},
+                        (err) => console.log(err)
+                    );
+                },
+                (err) => console.log(err)
+            );
+        } else {
+            console.log("Invalid mode or don't seted");
+        }
         console.log("Complete");
     },
-    (err) => console.log("Something went wrong!", err)
+    (err) => console.log(err)
 );
