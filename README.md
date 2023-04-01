@@ -1,6 +1,6 @@
 # Spotify playlist sorter
 
-## Reqires
+## Requires
 1. Installed Node.js
 
 2. Create `.env` file by this template:
