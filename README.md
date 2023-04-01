@@ -12,13 +12,13 @@ playlistID=" <id of playlist that you wanna sort> "
 mode=" <mode of saved result> "
 ```
 
->>`clientId` and `cleantSecret` of your app you can get on [Spotify Dashboard](https://developer.spotify.com/dashboard)
->>
->>To get `accessToken` use `getToken.js`
->>
->>`playlistID` is id of playlist that you wanna sort
->>
->>`mode` set to `createNew` (create a new playlist with sorted song; can be used with playlists that you don't owned) or `modifyExisted` (reorder existed playlist; can\t be used with playlists that you don't owned)
+>`clientId` and `cleantSecret` of your app you can get on [Spotify Dashboard](https://developer.spotify.com/dashboard)
+>
+>To get `accessToken` use `getToken.js`
+>
+>`playlistID` is id of playlist that you wanna sort
+>
+>`mode` set to `createNew` (create a new playlist with sorted song; can be used with playlists that you don't owned) or `modifyExisted` (reorder existed playlist; can\t be used with playlists that you don't owned)
 
 ## Use
 ```sh
