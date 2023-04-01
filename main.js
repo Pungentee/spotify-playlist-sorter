@@ -1,18 +1,23 @@
 require("dotenv").config();
 
+const clientId = process.env.clientId,
+    clientSecret = process.env.clientSecret,
+    redirectUri = "http://localhost:8888/callback",
+    accessToken = process.env.accessToken;
+
 const SpotifyWebApi = require("spotify-web-api-node");
 const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.clientId,
-    clientSecret: process.env.clientSecret,
-    redirectUri: process.env.redirectUri,
+    clientId: clientId,
+    clientSecret: clientSecret,
+    redirectUri: redirectUri,
 });
 
-spotifyApi.setAccessToken(process.env.accessToken);
+spotifyApi.setAccessToken(accessToken);
 
-function compareNames(a, b) {
-    if (a[0] < b[0]) {
+function compareSongsNames(a, b) {
+    if (a.track.artists[0].name[0] < b.track.artists[0].name[0]) {
         return -1;
-    } else if (a[0] < b[0]) {
+    } else if (a.track.artists[0].name[0] < b.track.artists[0].name[0]) {
         return 1;
     }
     return 0;
@@ -20,8 +25,8 @@ function compareNames(a, b) {
 
 function compareTracksByAlbumYear(a, b) {
     let aAlbumYear, bAlbumYear;
-    aAlbumYear = a.track.album.release_date;
-    bAlbumYear = b.track.album.release_date;
+    aAlbumYear = Date.parse(a.track.album.release_date);
+    bAlbumYear = Date.parse(b.track.album.release_date);
 
     if (aAlbumYear < bAlbumYear) {
         return -1;
@@ -43,94 +48,114 @@ function compareTracksByPositionInAlbum(a, b) {
     return 0;
 }
 
-function sortDictByName(dict) {
-    sortedDict = {};
-    let keys = Object.keys(dict);
-    keys.sort(compareNames);
-    for (let i in keys) {
-        let key = keys[i];
-        let value = dict[key];
-        sortedDict[key] = value;
-    }
-    return sortedDict;
-}
-
-function sortDictOfSongsByArtistByAlbumYear(songsDict) {
-    for (let artist in songsDict) {
-        songsDict[artist].sort(compareTracksByAlbumYear);
-    }
-}
-
 function sortSongsByArtist(songsList) {
-    let dictOfSongByArtists = {},
-        sortedDictOfSongByArtists = {};
+    let copySongsList = [...songsList],
+        sortedList = [];
 
-    for (let song of songsList) {
-        if (dictOfSongByArtists[song.track.artists[0].name] == undefined) {
-            dictOfSongByArtists[song.track.artists[0].name] = [];
+    copySongsList.sort(compareSongsNames);
+
+    for (let song in copySongsList) {
+        if (song == 0) {
+            sortedList.push([copySongsList[song]]);
+        } else if (copySongsList[song].track.artists[0].name == copySongsList[song - 1].track.artists[0].name) {
+            sortedList[sortedList.length - 1].push(copySongsList[song]);
+        } else {
+            sortedList.push([copySongsList[song]]);
         }
-        dictOfSongByArtists[song.track.artists[0].name].push(song);
     }
-    sortedDictOfSongByArtists = sortDictByName(dictOfSongByArtists);
 
-    return sortedDictOfSongByArtists;
+    return sortedList;
 }
 
-function sortDictOfSongsByPositionInAlbum(songsDict) {
-    let dictOfAlbums = {};
+function sortSongsByAlbumYear(songsList) {
+    let copySongsList = [...songsList],
+        sortedList = [],
+        albumList = [];
 
-    for (let artist in songsDict) {
-        for (let song in songsDict[artist]) {
-            if (
-                dictOfAlbums[songsDict[artist][song].track.album.name] ==
-                undefined
-            ) {
-                dictOfAlbums[songsDict[artist][song].track.album.name] = [];
+    for (let artist of copySongsList) {
+        sortedList.push(artist.sort(compareTracksByAlbumYear));
+    }
+
+    for (let artist in sortedList) {
+        if (albumList[artist] == undefined) {
+            albumList[artist] = [];
+        }
+        for (let song in sortedList[artist]) {
+            if (song == 0) {
+                albumList[artist].push([sortedList[artist][song]]);
+            } else if (sortedList[artist][song].track.album.name == sortedList[artist][song - 1].track.album.name) {
+                albumList[artist][albumList[artist].length - 1].push(sortedList[artist][song]);
+            } else {
+                albumList[artist].push([sortedList[artist][song]]);
             }
-            dictOfAlbums[songsDict[artist][song].track.album.name].push(
-                songsDict[artist][song]
-            );
         }
     }
 
-    for (let album in dictOfAlbums) {
-        dictOfAlbums[album].sort(compareTracksByPositionInAlbum);
-    }
-
-    return dictOfAlbums;
+    return albumList;
 }
 
-function converteSongsDictToList(songsDict) {
-    let listOfAlbums = [],
-        sortedSongList = [];
-    for (let album of Object.values(songsDict)) {
-        listOfAlbums.push(album);
-    }
-    for (let album of listOfAlbums) {
-        for (let song of album) {
-            sortedSongList.push(song);
+function sortSongsByPositionInAlbum(songsList) {
+    let copySongsList = [...songsList],
+        sortedList = [];
+
+    for (let artist in copySongsList) {
+        if (sortedList[artist] == undefined) {
+            sortedList[artist] = [];
+        }
+        for (let album in copySongsList[artist]) {
+            if (sortedList[artist][album] == undefined) {
+                sortedList[artist][album] = [];
+            }
+            sortedList[artist][album] = copySongsList[artist][album].sort(compareTracksByPositionInAlbum);
         }
     }
-    return sortedSongList;
+
+    return sortedList;
+}
+
+function convertArtistsAndAlbumsListToSongsList(artistAndAlbumList) {
+    let copySongsList = [...artistAndAlbumList],
+        songsList = [];
+
+    for (let artist of copySongsList) {
+        for (let album of artist) {
+            for (let song of album) {
+                songsList.push(song);
+            }
+        }
+    }
+
+    return songsList;
+}
+
+function createListOfSongsID(songsList) {
+    let songsIDList = [];
+    for (let song of songsList) {
+        songsIDList.push("spotify:track:" + song.track.id);
+    }
+    return songsIDList;
 }
 
 spotifyApi.getPlaylist(process.env.playlistID).then(
-    function (data) {
-        let songsList = data.body.tracks.items;
-        dictOfSongs = sortSongsByArtist(songsList);
-        sortDictOfSongsByArtistByAlbumYear(dictOfSongs);
-        dictOfSongs = sortDictOfSongsByPositionInAlbum(dictOfSongs);
-        songsList = converteSongsDictToList(dictOfSongs);
+    (data) => {
+        let originalSongsList = data.body.tracks.items;
+        let sortedSongsList = sortSongsByArtist(originalSongsList);
+        sortedSongsList = sortSongsByAlbumYear(sortedSongsList);
+        sortedSongsList = sortSongsByPositionInAlbum(sortedSongsList);
+        sortedSongsList = convertArtistsAndAlbumsListToSongsList(sortedSongsList);
+        listOfSongsID = createListOfSongsID(sortedSongsList);
 
-        for (let song of songsList) {
-            console.log(
-                song.track.album.release_date,
-                song.track.track_number,
-                song.track.name
-            );
-        }
+        spotifyApi.createPlaylist(data.body.name + " Sorted").then(
+            (data) => {
+                spotifyApi.addTracksToPlaylist(data.body.id, listOfSongsID).then(
+                    (data) => {},
+                    (err) => console.log("Something went wrong!", err)
+                );
+            },
+            (err) => console.log("Something went wrong!", err)
+        );
+
+        console.log("Complete");
     },
-    function (err) {
-        console.log("Something went wrong!", err);
-    }
+    (err) => console.log("Something went wrong!", err)
 );
