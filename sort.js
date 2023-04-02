@@ -15,7 +15,7 @@ const argv = yargs(hideBin(process.argv)).argv,
     clientSecret = argv["clientSecret"],
     redirectUrl = "http://localhost:8888/callback",
     playlistID = path.parse(url.parse(argv["playlistURL"]).pathname).name,
-    mode = argv["mode"],
+    mode = argv["mode"] || 'modifyExisted',
     stateKey = "spotify_auth_state",
     app = express()
         .use(express.static(__dirname + "/public"))

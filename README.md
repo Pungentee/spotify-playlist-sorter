@@ -3,7 +3,6 @@
 ## Reqires
 1. Installed **Node.js**
 2. Spotify App
->>>>>>> d350b8e (some update)
 
 ## Use
 ```shell
@@ -19,6 +18,6 @@ node sort.js --clientID <your clientID> \
 
 **clientId** and **clientSecret** of your app. You can get it created app on [Spotify Dashboard](https://developer.spotify.com/dashboard) (for redirect URL use <http://localhost:8888/callback>)
 
-`mode` can be setted to:
+`mode` can be setted to (default setted to **modifyExisted**):
 - **createNew** (create a new playlist with sorted playlist; can be used with playlists that you don't own)
 - **modifyExisted** (reorder existed playlist; can't be used with playlists that you don't own)
