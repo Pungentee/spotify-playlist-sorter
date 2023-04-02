@@ -20,4 +20,5 @@ node sort.js --clientID <your clientID> \
 
 2. `mode` can be setted to `createNew` or `modifyExisted` (default setted to **`modifyExisted`**)
 >**createNew** create a new playlist with sorted playlist; can be used with playlists that you don't own
+>
 >**modifyExisted** reorder existed playlist; can't be used with playlists that you don't own
