@@ -3,7 +3,6 @@
 ## Reqires
 1. Installed **Node.js**
 2. Spotify App
->>>>>>> d350b8e (some update)
 
 ## Use
 ```shell
