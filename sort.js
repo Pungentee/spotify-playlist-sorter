@@ -15,7 +15,7 @@ const argv = yargs(hideBin(process.argv)).argv,
     clientSecret = argv["clientSecret"],
     redirectUrl = "http://localhost:8888/callback",
     playlistID = path.parse(url.parse(argv["playlistURL"]).pathname).name,
-    mode = argv["mode"] || 'modifyExisted',
+    mode = argv["mode"] || "modifyExisted",
     stateKey = "spotify_auth_state",
     app = express()
         .use(express.static(__dirname + "/public"))
@@ -140,16 +140,16 @@ function createListOfSongsID(songsList) {
     return songsIDList;
 }
 
-async function matchPlaylist(playlistId, matchTo) {
-    await spotifyApi.getPlaylist(playlistId).then(
+async function matchPlaylist(playlistID, matchTo) {
+    await spotifyApi.getPlaylist(playlistID).then(
         async (data) => {
             let currentSongsList = data.body.tracks.items;
 
             for (let i in matchTo) {
                 for (let j in currentSongsList) {
                     if (matchTo[i].track.id == currentSongsList[j].track.id) {
-                        await spotifyApi.reorderTracksInPlaylist(playlistId, parseInt(j), parseInt(i) + 1).then(
-                            await spotifyApi.getPlaylist(playlistId).then(
+                        await spotifyApi.reorderTracksInPlaylist(playlistID, parseInt(j), parseInt(i) + 1).then(
+                            await spotifyApi.getPlaylist(playlistID).then(
                                 async (data) => (currentSongsList = data.body.tracks.items),
                                 async (err) => console.log(err)
                             ),
@@ -161,6 +161,17 @@ async function matchPlaylist(playlistId, matchTo) {
             }
         },
         async (err) => console.log(err)
+    );
+    await spotifyApi.getPlaylist(playlistID).then(
+        async (data) => {
+            currentSongsList = data.body.tracks.items;
+            for (let i in matchTo) {
+                if (currentSongsList[i].track.id != matchTo[i].track.id) {
+                    await matchPlaylist(playlistID, matchTo);
+                }
+            }
+        },
+        (err) => console.log(err)
     );
 }
 
@@ -186,6 +197,7 @@ async function sort() {
     await spotifyApi.getPlaylist(playlistID).then(
         async (data) => {
             console.log("Wait...");
+
             let currentSongsList = data.body.tracks.items;
             let sortedSongsList = sortSongsByArtist(currentSongsList);
             sortedSongsList = sortSongsByAlbumYear(sortedSongsList);
@@ -221,9 +233,9 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/callback", (req, res) => {
-    var code = req.query.code || null;
-    var state = req.query.state || null;
-    var storedState = req.cookies ? req.cookies[stateKey] : null;
+    let code = req.query.code || null;
+    let state = req.query.state || null;
+    let storedState = req.cookies ? req.cookies[stateKey] : null;
 
     if (state === null || state !== storedState) {
         res.redirect(
@@ -251,9 +263,7 @@ app.get("/callback", (req, res) => {
         request.post(authOptions, async (error, response, body) => {
             if (!error && response.statusCode === 200) {
                 spotifyApi.setAccessToken(body.access_token);
-
                 res.status(200).send("<p><h1>Token gotten</h1></p><p><h1>Wait for the sorting to finish</h1></p>");
-
                 await sort();
                 process.exit();
             } else {
