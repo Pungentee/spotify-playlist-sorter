@@ -135,7 +135,8 @@ function convertArtistsAndAlbumsListToSongsList(artistAndAlbumList) {
 function createListOfSongsID(songsList) {
     let songsIDList = [];
     for (let song of songsList) {
-        songsIDList.push("spotify:track:" + song.track.id);
+        if (song.track.id == null) continue;
+        else songsIDList.push("spotify:track:" + song.track.id);
     }
     return songsIDList;
 }
@@ -147,7 +148,10 @@ async function matchPlaylist(playlistID, matchTo) {
 
             for (let i in matchTo) {
                 for (let j in currentSongsList) {
-                    if (matchTo[i].track.id == currentSongsList[j].track.id) {
+                    if (
+                        matchTo[i].track.name == currentSongsList[j].track.name &&
+                        matchTo[i].track.artists[0].name == currentSongsList[j].track.artists[0].name
+                    ) {
                         await spotifyApi.reorderTracksInPlaylist(playlistID, parseInt(j), parseInt(i) + 1).then(
                             await spotifyApi.getPlaylist(playlistID).then(
                                 async (data) => (currentSongsList = data.body.tracks.items),
