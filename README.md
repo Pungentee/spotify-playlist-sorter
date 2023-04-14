@@ -13,7 +13,7 @@ npm install
 node sort.js --clientID <your clientID> \
              --clientSecret <your clientSecret> \
              --playlistURL <link to playlist that you want to sort> \
-             --mode <mode of saving sorted playlist>
+             --mode <mode of saving sorted playlist (optional)>
 ```
 
 **clientId** and **clientSecret** of your app. You can get it created app on [Spotify Dashboard](https://developer.spotify.com/dashboard) (for redirect URL use <http://localhost:8888/callback>)
