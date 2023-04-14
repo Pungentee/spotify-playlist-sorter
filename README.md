@@ -23,3 +23,4 @@ node sort.js --clientID <your clientID> \
 > **createNew** (create a new playlist with sorted playlist; can be used with playlists that you don't own; don't add local files)
 >
 > **modifyExisted** (reorder existed playlist; can't be used with playlists that you don't own; work's with local files)
+
