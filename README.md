@@ -21,7 +21,7 @@ npm i -g .
 ## Use
 ```sh
 # set clientId and client Secret
-plsorl --setID <id>
+plsort --setID <id>
 plsort --setSecret <Secret>
 
 plsort <link to playlist>
