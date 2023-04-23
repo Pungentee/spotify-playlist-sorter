@@ -78,6 +78,7 @@ if (argv['setID'] || argv['setId']) {
     } else {
         spotifyApi.setAccessToken(localStorage.getItem('accessToken'));
         spotifyApi.setRefreshToken(localStorage.getItem('refreshToken'));
+
         await sort();
     }
 } else {
@@ -241,6 +242,24 @@ async function sort() {
 
             console.log('Complete');
         },
-        err => console.log(err),
+        err => {
+            if (err.statusCode === 401) {
+                spotifyApi.refreshAccessToken().then(
+                    async data => {
+                        spotifyApi.setAccessToken(data.body['access_token']);
+                        spotifyApi.setRefreshToken(data.body['refresh_token']);
+
+                        localStorage.setItem('accessToken', data.body['access_token']);
+                        localStorage.setItem('refreshToken', data.body['refresh_token']);
+
+                        await sort();
+                        process.exit();
+                    },
+                    err => {
+                        console.log('Could not refresh access token', err);
+                    },
+                );
+            } else console.log(err);
+        },
     );
 }

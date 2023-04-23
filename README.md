@@ -1,5 +1,10 @@
 # Spotify playlist sorter
 
+## Reqires
+
+1. Installed **Node.js**
+2. [Spotify App](https://developer.spotify.com/dashboard)
+
 ## Install
 
 ```sh
@@ -15,5 +20,9 @@ npm i -g .
 ```
 ## Use
 ```sh
+# set clientId and client Secret
+plsorl --setID <id>
+plsort --setSecret <Secret>
+
 plsort <link to playlist>
 ```
