@@ -58,7 +58,7 @@ if (argv['setID'] || argv['setId']) {
     console.log('need to set client Secret');
 } else if (argv['_'].length) {
     playlistID = path.parse(url.parse(argv['_'][0]).pathname).name;
-    clientId = localStorage.getItem('clientID') || ['clientID'];
+    clientId = localStorage.getItem('clientID') || argv['clientID'];
     clientSecret = localStorage.getItem('clientSecret') || argv['clientSecret'];
     spotifyApi = new SpotifyWebApi({
         clientId: clientId,
@@ -243,7 +243,7 @@ async function sort() {
             console.log('Complete');
         },
         err => {
-            if (err.statusCode === 401) {
+            if (err.statusCode === 401 || err.statusCode === 400) {
                 spotifyApi.refreshAccessToken().then(
                     async data => {
                         spotifyApi.setAccessToken(data.body['access_token']);
