@@ -3,7 +3,7 @@
 ## Reqires
 
 1. Installed **Node.js**
-2. [Spotify App](https://developer.spotify.com/dashboard)
+2. [Spotify App](https://developer.spotify.com/dashboard) (redirect URL http://example.com)
 
 ## Install
 
