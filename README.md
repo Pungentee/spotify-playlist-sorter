@@ -2,7 +2,7 @@
 
 ## Reqires
 
-1. Installed **Node.js**
+1. Installed **Python**
 2. [Spotify App](https://developer.spotify.com/dashboard) (redirect URL http://example.com)
 
 ## Install
@@ -13,16 +13,10 @@ git clone https://github.com/Pungentee/spotify-playlist-sorter
 cd spotify-playlist-sorter
 
 # install dependencies
-npm install
-
-# install cli
-npm i -g .
+pip install argparse localStoragePy spotipy
 ```
+
 ## Use
 ```sh
-# set clientId and client Secret
-plsort --setID <id>
-plsort --setSecret <Secret>
-
-plsort <link to playlist>
+python main.py <link to playlist>
 ```
