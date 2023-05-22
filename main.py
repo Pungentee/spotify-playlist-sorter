@@ -1,4 +1,5 @@
 import argparse
+from pprint import pprint
 from localStoragePy import localStoragePy
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -68,7 +69,7 @@ for artist in range(len(list_of_tracks_unsorted)):
 
 
 def take_artist(elem):
-    return elem["artist_name"][0].lower()
+    return elem["artist_name"].lower()
 
 
 def take_year(elem):
@@ -90,7 +91,6 @@ for track in list_of_tracks:
         track["artist_name"] = track["artist_name"][4:]
 
 list_of_tracks.sort(key=take_artist)
-
 
 for artist in range(len(list_of_tracks)):
     if artist == 0:
